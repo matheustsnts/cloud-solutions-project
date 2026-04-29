@@ -7,3 +7,8 @@ variable "region" { default = "us-ashburn-1" } # Ou a região que você escolheu
 variable "compartment_id" {
   description = "OCID do compartimento onde os recursos serão criados"
 }
+
+variable "db_password" {
+  description = "Senha do administrador do banco de dados"
+  sensitive   = true
+}
