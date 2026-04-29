@@ -1,0 +1,17 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+setup.kibana:
+  host: "kibana:5601"
+
+# Pede para o Filebeat tentar entender o JSON que o Java vai cuspir
+processors:
+  - decode_json_fields:
+      fields: ["message"]
+      target: "json"
+      overwrite_keys: true
