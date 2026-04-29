@@ -32,3 +32,49 @@ resource "oci_core_subnet" "public_subnet" {
   display_name   = "public-subnet"
   dns_label      = "public"
 }
+
+# 5. Definir a Lista de Segurança (Firewall)
+resource "oci_core_security_list" "app_security_list" {
+  compartment_id = var.compartment_id
+  vcn_id         = oci_core_vcn.main_vcn.id
+  display_name   = "sl-cloud-solutions"
+
+  # Regra de Saída (Egress): Permitir tudo para a Internet
+  egress_security_rules {
+    destination = "0.0.0.0/0"
+    protocol    = "all"
+  }
+
+  # Regra de Entrada (Ingress): Permitir SSH (Porta 22) para sua gestão
+  ingress_security_rules {
+    protocol = "6" # TCP
+    source   = "0.0.0.0/0" # Em produção, coloque seu IP real aqui
+    tcp_options {
+      min = 22
+      max = 22
+    }
+  }
+
+  # Regra de Entrada: Porta do serviço Java (8080)
+  ingress_security_rules {
+    protocol = "6"
+    source   = "0.0.0.0/0"
+    tcp_options {
+      min = 8080
+      max = 8080
+    }
+  }
+
+  # Regra de Entrada: Porta do banco SQL (1522 - Porta padrão do Autonomous)
+  ingress_security_rules {
+    protocol = "6"
+    source   = "10.0.0.0/16" # Apenas tráfego INTERNO da VCN acessa o banco
+    tcp_options {
+      min = 1522
+      max = 1522
+    }
+  }
+}
+
+# 6. Vincular a Security List à sua Subnet existente
+# Nota: Você precisará atualizar o recurso oci_core_subnet no vcn.tf
