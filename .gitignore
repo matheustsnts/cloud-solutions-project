@@ -1,0 +1,7 @@
+# Terraform sensitive files
+*.tfvars
+*.pem
+.terraform/
+terraform.tfstate*
+infra/oci/.terraform.lock.hcl
+infra/oci/.terraform
