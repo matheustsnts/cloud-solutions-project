@@ -1,21 +1,34 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-import uuid
+from fastapi import FastAPI, Request
+import logging
+import json
 
 app = FastAPI(title="Payment Service")
 
-class PaymentRequest(BaseModel):
-    order_id: str
-    amount: float
+# Configuração de log em JSON simples
+logger = logging.getLogger("payment_service")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    # Captura o ID que o Java enviou
+    correlation_id = request.headers.get("X-Correlation-ID", "unknown")
+    
+    response = await call_next(request)
+    
+    # Log estruturado em JSON
+    log_data = {
+        "app_name": "payment-service",
+        "correlationId": correlation_id,
+        "method": request.method,
+        "path": request.url.path,
+        "status": response.status_code
+    }
+    logger.info(json.dumps(log_data))
+    
+    return response
 
 @app.post("/process-payment")
-async def process_payment(request: PaymentRequest):
-    # Simulação de lógica de negócio
-    if request.amount <= 0:
-        raise HTTPException(status_code=400, detail="Invalid amount")
-    
-    return {
-        "payment_id": str(uuid.uuid4()),
-        "status": "APPROVED",
-        "order_id": request.order_id
-    }
+async def process_payment(order_id: str):
+    return {"status": "APPROVED", "order_id": order_id}
