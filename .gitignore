@@ -1,0 +1,18 @@
+# .gitignore
+
+# Ignorar o diretório de binários e módulos
+.terraform/
+
+# Ignorar arquivos de estado (extremamente sensíveis)
+*.tfstate
+*.tfstate.*
+
+# Ignorar variáveis sensíveis (onde estão seus OCIDs e senhas)
+*.tfvars
+*.tfvars.json
+
+# Ignorar arquivos de log do Terraform
+*.log
+
+*.terraform.lock.hcl
+*.pem
